@@ -207,7 +207,7 @@ st.markdown(f"""
         linear-gradient(180deg, {wall_top} 0%, {wall_bot} 72%, {floor_c} 72%, {floor_c} 100%);
     background-attachment: fixed;
 }}
-.block-container {{ position: relative; z-index: 1; padding-top: 1rem; max-width: 760px; }}
+.block-container {{ position: relative; z-index: 1; padding-top: 200px; max-width: 760px; }}
 
 .side-deco {{
     position: fixed; top: 90px; pointer-events: none; z-index: 0; opacity: 0.85;
@@ -219,11 +219,13 @@ st.markdown(f"""
 }}
 
 .blackboard {{
-    position: sticky; top: 0; z-index: 50;
+    position: fixed; top: 12px; left: 50%; transform: translateX(-50%);
+    width: min(760px, 92vw); max-height: 150px; overflow-y: auto;
+    z-index: 999999;
     background: radial-gradient(ellipse at top, #2f4f3f 0%, #24382c 100%);
     border: 14px solid #8a6d3b; border-radius: 10px;
-    box-shadow: 0 8px 16px rgba(0,0,0,0.35);
-    padding: 18px 22px; margin-bottom: 18px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.45);
+    padding: 18px 22px;
 }}
 .board-title {{
     font-family: 'Gaegu', sans-serif; color: #fdf6e3; font-size: 1.1rem; opacity: 0.85; margin-bottom: 6px;
@@ -334,13 +336,20 @@ with col1:
 with col2:
     st.write("")
     st.write("")
-    if st.button("📝 정식 검사하기"):
-        st.session_state.show_test = True
+    if st.button("📝 정식 검사하기" if not st.session_state.show_test else "❌ 검사지 접기"):
+        st.session_state.show_test = not st.session_state.show_test
+        st.rerun()
 
 if st.session_state.show_test:
     st.markdown('<div class="notebook-card">', unsafe_allow_html=True)
-    st.markdown("#### 📝 간이 성향 검사 (16문항)")
-    st.caption("각 문항에 얼마나 동의하는지 선택해주세요.")
+    top_l, top_r = st.columns([5, 1])
+    with top_l:
+        st.markdown("#### 📝 간이 성향 검사 (16문항)")
+    with top_r:
+        if st.button("✖ 접기", key="close_test_inner"):
+            st.session_state.show_test = False
+            st.rerun()
+    st.caption("각 문항에 얼마나 동의하는지 선택해주세요. (원하지 않으면 접기를 눌러 닫을 수 있어요)")
     with st.form("mbti_real_test"):
         scores = {"E": 0, "I": 0, "S": 0, "N": 0, "T": 0, "F": 0, "J": 0, "P": 0}
         for idx, (q, letter) in enumerate(test_items):
